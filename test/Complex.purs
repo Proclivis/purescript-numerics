@@ -14,6 +14,10 @@ complexSpec =
        describe "Simple Tests" do
          it "(:+) constructor" $
            x `shouldEqual` y
+         it "get real part" $
+           realPart x `shouldEqual` 1
+         it "get imaginary part" $
+           imagPart x `shouldEqual` 2
          where
            x = 1 :+ 2
            y = (Complex {real: 1, imaginary: 2} :: Complex Int)
