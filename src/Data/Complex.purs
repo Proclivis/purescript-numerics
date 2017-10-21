@@ -7,8 +7,9 @@ module Data.Complex
   , imagPart
   ) where
 
-import Prelude
-import Data.Num
+import Prelude (class Applicative, class Apply, class Bind, class Eq, class Functor, class Show, show, (<>))
+
+import Data.Num (class Num)
 
 -- -----------------------------------------------------------------------------
 -- The Complex type
@@ -19,10 +20,10 @@ import Data.Num
 -- but oriented in the positive real direction, whereas @'signum' z@
 -- has the phase of @z@, but unit magnitude.
 --
-data Complex a = Complex {real :: a, imaginary :: a}
+data Complex a = Complex a a
 
-mkComplex :: forall a. (Num a) => a -> a -> Complex a
-mkComplex r i = Complex {real : r, imaginary: i}
+mkComplex :: forall a. a -> a -> Complex a
+mkComplex r i = Complex r i
 
 infix 6 mkComplex as :+
 
@@ -30,17 +31,29 @@ infix 6 mkComplex as :+
 -- Functions over Complex
 
 -- | Extracts the real part of a complex number.
-realPart :: forall a. (Num a) => Complex a -> a
-realPart (Complex c) = c.real
+realPart :: forall a. Complex a -> a
+realPart (Complex r _) = r
 
 -- | Extracts the imaginary part of a complex number.
-imagPart :: forall a. (Num a) => Complex a -> a
-imagPart (Complex c) = c.imaginary
+imagPart :: forall a. Complex a -> a
+imagPart (Complex _ i) = i
 
 -- -----------------------------------------------------------------------------
 -- Typeclass instances for Complex
 
-instance showComplex :: Show (Complex Int) where
-  show (Complex c1) = (show c1.real) <> " + " <> (show c1.imaginary) <> "i"
+instance showComplex :: (Show a) => Show (Complex a) where
+  show (Complex r i) = (show r) <> " + " <> (show i) <> "i"
 
-derive instance eqComplex :: (Num a) => Eq (Complex a)
+derive instance eqComplex :: (Eq a) => Eq (Complex a)
+
+instance functorComplex :: Functor Complex where
+  map f (Complex r i) = f r :+ f i
+
+instance applyComplex :: Apply Complex where
+  apply (Complex f g) (Complex r i) = f r :+ g i
+
+instance applicativeComplex :: Applicative Complex where
+  pure x = x :+ x
+
+instance bindComplex :: Bind Complex where
+  bind (Complex r i) f = realPart (f r) :+ imagPart (f i)
