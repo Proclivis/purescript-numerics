@@ -7,7 +7,7 @@ module Data.Complex
   , imagPart
   ) where
 
-import Prelude (class Applicative, class Apply, class Bind, class Eq, class Functor, class Show, show, (<>))
+import Prelude (class Applicative, class Apply, class Bind, class Eq, class Functor, class Monad, class Show, show, (<>))
 
 import Data.Num (class Num)
 
@@ -57,3 +57,5 @@ instance applicativeComplex :: Applicative Complex where
 
 instance bindComplex :: Bind Complex where
   bind (Complex r i) f = realPart (f r) :+ imagPart (f i)
+
+instance monadComplex :: Monad Complex
