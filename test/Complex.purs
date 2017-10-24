@@ -20,4 +20,4 @@ complexSpec =
            imagPart x `shouldEqual` 2
          where
            x = 1 :+ 2
-           y = (Complex {real: 1, imaginary: 2} :: Complex Int)
+           y = Complex 1 2 :: Complex Int

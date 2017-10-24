@@ -7,7 +7,24 @@ module Data.Complex
   , imagPart
   ) where
 
-import Prelude (class Applicative, class Apply, class Bind, class Eq, class Functor, class Monad, class Show, show, (<>))
+import Prelude (class Applicative
+                , class Apply
+                , class Bind
+                , class Eq
+                , class Functor
+                , class Monad
+                , class Semiring
+                , class Show
+                , show
+                , pure
+                , one
+                , zero
+                , (<>)
+                , (*)
+                , (+))
+
+import Control.Monad.Zip
+import Control.Monad.Fix
 
 import Data.Num (class Num)
 
@@ -59,3 +76,14 @@ instance bindComplex :: Bind Complex where
   bind (Complex r i) f = realPart (f r) :+ imagPart (f i)
 
 instance monadComplex :: Monad Complex
+
+instance zipMaybeInt :: MonadZip Complex where
+  mzip = mzip_
+  mzipWith = mzipWith_
+  munzip = munzip_
+
+instance semiringComplex :: Semiring a => Semiring (Complex a) where
+  one = pure one
+  mul (Complex r1 i1) (Complex r2 i2) = (r1 * r2) :+ (i1 * i2)
+  zero = pure zero
+  add (Complex r1 i1) (Complex r2 i2) = (r1 + r2) :+ (i1 + i2)
