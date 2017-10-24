@@ -27,6 +27,7 @@
 	"purescript-bigints": "^3.1.0"
     , "purescript-monad-zip": "https://github.com/AidanDelaney/purescript-monad-zip.git#^0.1.1"
     , "purescript-monad-fix": "https://github.com/AidanDelaney/purescript-monad-fix.git"
+    , "purescript-math" : "^2.0.0"
     },
     "devDependencies": {
         "purescript-psci-support": "^3.0.0",
