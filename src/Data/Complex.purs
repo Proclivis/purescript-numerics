@@ -10,23 +10,32 @@ module Data.Complex
 import Prelude (class Applicative
                 , class Apply
                 , class Bind
+                , class CommutativeRing
                 , class Eq
+                , class EuclideanRing
                 , class Functor
                 , class Monad
+                , class Ring
                 , class Semiring
                 , class Show
                 , show
                 , pure
                 , one
                 , zero
-                , (<>)
-                , (*)
-                , (+))
+                , sub
+                , mod
+                , (&&), (==), (<>)
+                , (*), (+), (-), (/), ($), (<)
+                , (<<<))
 
 import Control.Monad.Zip
 import Control.Monad.Fix
 
-import Data.Num (class Num)
+import Data.BigInt (toNumber)
+import Data.Int as I
+import Math as M
+import Data.Num (class Num, negate, abs, signum, fromBigInt)
+import Data.Floating (class Floating, sqrt)
 
 -- -----------------------------------------------------------------------------
 -- The Complex type
@@ -55,13 +64,27 @@ realPart (Complex r _) = r
 imagPart :: forall a. Complex a -> a
 imagPart (Complex _ i) = i
 
+mag :: forall a b. Semiring a => Eq a => (a -> a) -> Complex a -> a
+mag sqrtFn (Complex r i) = if (zero == r) && (zero == i) then zero
+                           else sqrtFn ((r*r) + (i*i))
+
+
+-- magnitude :: forall a. (Floating a) => Complex a -> a
+-- magnitude = mag sqrt
+
+{-
+magnitudeNumber :: Complex Number -> Number
+magnitudeNumber = mag M.sqrt
+
+magnitudeInt :: Complex Int -> Number
+magnitudeInt = mag $ M.sqrt <<< I.toNumber
+-}
+
 -- -----------------------------------------------------------------------------
 -- Typeclass instances for Complex
 
 instance showComplex :: (Show a) => Show (Complex a) where
   show (Complex r i) = (show r) <> " + " <> (show i) <> "i"
-
-derive instance eqComplex :: (Eq a) => Eq (Complex a)
 
 instance functorComplex :: Functor Complex where
   map f (Complex r i) = f r :+ f i
@@ -77,13 +100,45 @@ instance bindComplex :: Bind Complex where
 
 instance monadComplex :: Monad Complex
 
-instance zipMaybeInt :: MonadZip Complex where
+instance zipComplex :: MonadZip Complex where
   mzip = mzip_
   mzipWith = mzipWith_
   munzip = munzip_
 
-instance semiringComplex :: Semiring a => Semiring (Complex a) where
+-- Implementing the typeclasses for Num
+
+derive instance eqComplex :: (Eq a) => Eq (Complex a)
+
+instance semiringComplex ::  Semiring a => Semiring (Complex a) where
   one = pure one
   mul (Complex r1 i1) (Complex r2 i2) = (r1 * r2) :+ (i1 * i2)
   zero = pure zero
   add (Complex r1 i1) (Complex r2 i2) = (r1 + r2) :+ (i1 + i2)
+
+instance ringComplex ::  Ring a => Ring (Complex a) where
+  sub (Complex r1 i1) (Complex r2 i2) = (r1 - r2) :+ (i1 - i2)
+
+instance commringComplex :: CommutativeRing a => CommutativeRing (Complex a)
+
+{-
+instance numComplex :: Num a => Num (Complex a) where
+  negate (Complex r i) = (negate r) :+ (negate i)
+  abs (Complex r i)    = (abs r) :+ (abs i)
+  signum (Complex r i) = r/m :+ i/m
+                           where m = magnitudeNumber $ r :+ i
+  fromBigInt bi        = pure (fromBigInt bi) (fromBigInt bi)
+-}
+
+instance eucliadeanComplex :: EuclideanRing (Complex Number) where
+  degree (Complex r i) = 2 -- TODO: Check this
+  div (Complex r1 i1) (Complex r2 i2) = r1 / r2 :+ i1 / i2
+  mod (Complex r1 i1) (Complex r2 i2) = r1 `mod` r2 :+ i1 `mod` i2
+
+instance floatingComplex :: Floating (Complex Number) where
+  sqrt (Complex r i)   = if (zero == r) && (zero == i) then zero :+ zero
+                         else u :+ (if i < 0.0 then -v else v)
+                           where
+                             u'    = M.sqrt ((mag M.sqrt (r :+ i) + abs r) / 2.0)
+                             v'    = abs i / (u'*2.0)
+                             u     = if r < 0.0 then v' else u'
+                             v     = if r < 0.0 then u' else v'
