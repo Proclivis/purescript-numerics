@@ -68,18 +68,6 @@ mag :: forall a b. Semiring a => Eq a => (a -> a) -> Complex a -> a
 mag sqrtFn (Complex r i) = if (zero == r) && (zero == i) then zero
                            else sqrtFn ((r*r) + (i*i))
 
-
--- magnitude :: forall a. (Floating a) => Complex a -> a
--- magnitude = mag sqrt
-
-{-
-magnitudeNumber :: Complex Number -> Number
-magnitudeNumber = mag M.sqrt
-
-magnitudeInt :: Complex Int -> Number
-magnitudeInt = mag $ M.sqrt <<< I.toNumber
--}
-
 -- -----------------------------------------------------------------------------
 -- Typeclass instances for Complex
 
@@ -119,15 +107,6 @@ instance ringComplex ::  Ring a => Ring (Complex a) where
   sub (Complex r1 i1) (Complex r2 i2) = (r1 - r2) :+ (i1 - i2)
 
 instance commringComplex :: CommutativeRing a => CommutativeRing (Complex a)
-
-{-
-instance numComplex :: Num a => Num (Complex a) where
-  negate (Complex r i) = (negate r) :+ (negate i)
-  abs (Complex r i)    = (abs r) :+ (abs i)
-  signum (Complex r i) = r/m :+ i/m
-                           where m = magnitudeNumber $ r :+ i
-  fromBigInt bi        = pure (fromBigInt bi) (fromBigInt bi)
--}
 
 instance eucliadeanComplex :: EuclideanRing (Complex Number) where
   degree (Complex r i) = 2 -- TODO: Check this
