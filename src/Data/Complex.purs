@@ -3,6 +3,7 @@ module Data.Complex
   ( Complex(..)
   , mkComplex
   , (:+)
+  , magnitude
   , realPart
   , imagPart
   ) where
@@ -64,8 +65,8 @@ realPart (Complex r _) = r
 imagPart :: forall a. Complex a -> a
 imagPart (Complex _ i) = i
 
-mag :: forall a b. Semiring a => Eq a => (a -> a) -> Complex a -> a
-mag sqrtFn (Complex r i) = if (zero == r) && (zero == i) then zero
+magnitude :: forall a b. Semiring a => Eq a => (a -> a) -> Complex a -> a
+magnitude sqrtFn (Complex r i) = if (zero == r) && (zero == i) then zero
                            else sqrtFn ((r*r) + (i*i))
 
 -- -----------------------------------------------------------------------------
@@ -117,7 +118,7 @@ instance floatingComplex :: Floating (Complex Number) where
   sqrt (Complex r i)   = if (zero == r) && (zero == i) then zero :+ zero
                          else u :+ (if i < 0.0 then -v else v)
                            where
-                             u'    = M.sqrt ((mag M.sqrt (r :+ i) + abs r) / 2.0)
+                             u'    = M.sqrt ((magnitude M.sqrt (r :+ i) + abs r) / 2.0)
                              v'    = abs i / (u'*2.0)
                              u     = if r < 0.0 then v' else u'
                              v     = if r < 0.0 then u' else v'
