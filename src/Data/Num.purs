@@ -11,6 +11,7 @@ import Data.Int as I
 import Data.Maybe (fromMaybe)
 import Data.Ord as O
 import Data.Ring as R
+import Math as M
        
 -- | The `Num` class represents general numbers, similar to the Haskell version.
 class (Eq a, Semiring a, Ring a, CommutativeRing a) <= Num a where
